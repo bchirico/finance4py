@@ -72,8 +72,14 @@ def rsi(stock, window=14):
     up[up < 0] = 0
     down[down > 0] = 0
 
-    roll_up = pd.stats.moments.ewma(up, window)
-    roll_down = pd.stats.moments.ewma(down.abs(), window)
+    roll_up = up.ewm(ignore_na=False, min_periods=0, adjust=True, com=window)\
+        .mean()
+    roll_down = down.abs().ewm(ignore_na=False, min_periods=0, adjust=True,
+                               com=window).mean()
+
+    # This is deprecated in pandas 0.19.1
+    # roll_up = pd.stats.moments.ewma(up, window)
+    # roll_down = pd.stats.moments.ewma(down.abs(), window)
 
     rs = roll_up / roll_down
     rsi = 100.0 - (100.0 / (1.0 + rs))
