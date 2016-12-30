@@ -6,20 +6,19 @@ import pandas as pd
 from matplotlib.pyplot import show
 
 
-def bbands(close_price, window=30, numsd=2):
+def bbands(close, window=30, num_std=2):
     """
 
-    :param close_price:
+    :param close:
     :param window:
-    :param numsd:
+    :param num_std:
     :return:
     """
-    average = close_price.rolling(window=window, center=False).mean()
-    std = close_price.rolling(window=window, center=False).std()
-    upband = average + (std*numsd)
-    dnband = average - (std*numsd)
+    average = close.rolling(window=window, center=False).mean()
+    std = close.rolling(window=window, center=False).std()
+    upband = average + (std*num_std)
+    dnband = average - (std*num_std)
     boll_bands = DataFrame.from_dict({
-        'close': close_price,
         'close_average': np.round(average, 3),
         'bb_upper': np.round(upband, 3),
         'bb_lower': np.round(dnband, 3)
@@ -27,7 +26,7 @@ def bbands(close_price, window=30, numsd=2):
     return boll_bands
 
 
-def true_range(stock):
+def true_range(high, low, close):
     """
     True Range (TR), which is defined as the greatest of the following:
 
@@ -35,19 +34,21 @@ def true_range(stock):
     - Current High less the previous Close (absolute value)
     - Current Low less the previous Close (absolute value)
 
-    :param stock: Pandas DataFrame
-    :return: TR: the true range calculated as above
+    :param high: Pandas Series
+    :param low: Pandas Series
+    :param close: Pandas Series
+    :return: TR: Dataframe representing the true range calculated as above
     """
     tr = DataFrame()
-    tr['TR1'] = abs(stock['High'] - stock['Low'])
-    tr['TR2'] = abs(stock['High'] - stock['Close'].shift())
-    tr['TR3'] = abs(stock['Low'] - stock['Close'].shift())
+    tr['TR1'] = abs(high - low)
+    tr['TR2'] = abs(high - close.shift())
+    tr['TR3'] = abs(low - close.shift())
     tr['TR'] = tr[['TR1', 'TR2', 'TR3']].max(axis=1)
 
     return tr
 
 
-def average_true_range(stock, window=14):
+def average_true_range(high, low, close, window=14):
     """
     Average True range. It's an indicator that measure volatility.
 
@@ -60,7 +61,7 @@ def average_true_range(stock, window=14):
     :param window: int.
     :return:
     """
-    tr = true_range(stock)
+    tr = true_range(high, low, close,)
     atr = [np.nan] * tr.shape[0]
     atr[window] = tr['TR'].iloc[:window].mean()
     for i in range(window+1, len(atr)):
@@ -69,14 +70,14 @@ def average_true_range(stock, window=14):
     return tr
 
 
-def rsi(stock, window=14):
+def rsi(close, window=14):
     """
 
     :param stock:
     :param window:
     :return:
     """
-    delta = stock['Close'].diff()[1:]
+    delta = close.diff()#[1:]
 
     up, down = delta.copy(), delta.copy()
 
@@ -97,13 +98,13 @@ def rsi(stock, window=14):
     rs = roll_up / roll_down
     rsi = 100.0 - (100.0 / (1.0 + rs))
     rsi.columns = ['rsi']
-    return rsi[1:]
+    return rsi#[1:]
 
 
-def macd(stock, n_fast=12, n_slow=26):
+def macd(close, n_fast=12, n_slow=26):
     """
 
-    :param stock:
+    :param close:
     :param n_fast:
     :param n_slow:
     :return:
@@ -112,10 +113,10 @@ def macd(stock, n_fast=12, n_slow=26):
     # 12 e 26 giorni
     # IL MACD e' la dirreneza di queste 2 medie. Mentre la curva che da il
     # segnale di acquisto e' la EMA del MACD a 9 giorni
-    ema_fast = stock['Close'].ewm(ignore_na=False, min_periods=n_slow-1,
-                                  adjust=True, com=n_fast).mean()
-    ema_slow = stock['Close'].ewm(ignore_na=False, min_periods=n_slow-1,
-                                  adjust=True, com=n_slow).mean()
+    ema_fast = close.ewm(ignore_na=False, min_periods=n_slow-1, adjust=True,
+                         com=n_fast).mean()
+    ema_slow = close.ewm(ignore_na=False, min_periods=n_slow-1, adjust=True,
+                         com=n_slow).mean()
 
     suffix = '{0}_{1}'.format(str(n_fast), str(n_slow))
     macd = pd.Series(ema_fast - ema_slow, name='MACD_{0}'.format(suffix))
