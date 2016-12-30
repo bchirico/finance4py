@@ -16,6 +16,10 @@ finance4py
 .. image:: https://pyup.io/repos/github/Neuro17/finance4py/shield.svg
      :target: https://pyup.io/repos/github/Neuro17/finance4py/
      :alt: Updates
+     
+.. image:: https://landscape.io/github/Neuro17/finance4py/master/landscape.svg?style=flat-square
+   :target: https://landscape.io/github/Neuro17/finance4py/master
+   :alt: Code Health
 
 
 Python package containing a list of useful technical indicator for financial analysis on stock market. Built on top of pandas.
