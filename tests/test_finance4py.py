@@ -13,8 +13,8 @@ import sys
 import unittest
 from pandas import DataFrame, Series
 from pandas_datareader.data import DataReader
-from finance4py import finance4py
-import talib
+import finance4py
+# import talib
 import numpy as np
 
 
@@ -36,8 +36,8 @@ class TestFinance4py(unittest.TestCase):
     def test_true_range(self):
         tr = finance4py.true_range(self.stock.High, self.stock.Low,
                                    self.stock.Close)
-        tr_talib = talib.TRANGE(self.stock.High.values, self.stock.Low.values,
-                                self.stock.Close.values)
+        # tr_talib = talib.TRANGE(self.stock.High.values, self.stock.Low.values,
+        #                         self.stock.Close.values)
         self.assertIsInstance(tr, DataFrame)
         self.assertListEqual(tr.index.tolist(), self.stock.index.tolist())
         self.assertListEqual(tr.columns.tolist(), ['TR1', 'TR2', 'TR3', 'TR'])
@@ -46,7 +46,7 @@ class TestFinance4py(unittest.TestCase):
 
     def test_rsi(self):
         rsi = finance4py.rsi(self.stock.Close)
-        rsi_talib = talib.RSI(self.stock.Close.values)
+        # rsi_talib = talib.RSI(self.stock.Close.values)
         self.assertIsInstance(rsi, Series)
         self.assertListEqual(rsi.index.tolist(), self.stock.index.tolist())
         self.assertEqual(rsi.name, 'RSI')

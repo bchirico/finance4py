@@ -3,8 +3,6 @@
 import numpy as np
 from pandas import DataFrame
 import pandas as pd
-from matplotlib.pyplot import show
-
 
 def bbands(close, window=30, num_std=2):
     """

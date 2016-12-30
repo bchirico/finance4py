@@ -1,1 +1,3 @@
 # -*- coding: utf-8 -*-
+
+import test_finance4py
