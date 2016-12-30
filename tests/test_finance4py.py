@@ -12,8 +12,8 @@ Tests for `finance4py` module.
 import sys
 import unittest
 from pandas import DataFrame, Series
+from pandas_datareader.data import DataReader
 from finance4py import finance4py
-from finance4py import ex
 import talib
 import numpy as np
 
@@ -21,7 +21,7 @@ import numpy as np
 class TestFinance4py(unittest.TestCase):
 
     def setUp(self):
-        self.stock = ex.StockDataFrame('MSFT')
+        self.stock = DataReader('MSFT', 'google')
 
     def tearDown(self):
         pass
@@ -49,5 +49,6 @@ class TestFinance4py(unittest.TestCase):
         rsi_talib = talib.RSI(self.stock.Close.values)
         self.assertIsInstance(rsi, Series)
         self.assertListEqual(rsi.index.tolist(), self.stock.index.tolist())
+        self.assertEqual(rsi.name, 'RSI')
         # also here there are more nan values in talib
         # np.testing.assert_almost_equal(rsi.values, rsi_talib)

@@ -73,11 +73,11 @@ def average_true_range(high, low, close, window=14):
 def rsi(close, window=14):
     """
 
-    :param stock:
+    :param close:
     :param window:
     :return:
     """
-    delta = close.diff()#[1:]
+    delta = close.diff()
 
     up, down = delta.copy(), delta.copy()
 
@@ -96,9 +96,9 @@ def rsi(close, window=14):
     # roll_down = pd.stats.moments.ewma(down.abs(), window)
 
     rs = roll_up / roll_down
-    rsi = 100.0 - (100.0 / (1.0 + rs))
-    rsi.columns = ['rsi']
-    return rsi#[1:]
+    rsi_series = 100.0 - (100.0 / (1.0 + rs))
+    rsi_series.rename('RSI', inplace=True)
+    return rsi_series
 
 
 def macd(close, n_fast=12, n_slow=26):
@@ -111,7 +111,7 @@ def macd(close, n_fast=12, n_slow=26):
     """
     # Vengono calcolate 2 medie (exponential moving average) con periodi di
     # 12 e 26 giorni
-    # IL MACD e' la dirreneza di queste 2 medie. Mentre la curva che da il
+    # IL MACD e' la differenza di queste 2 medie. Mentre la curva che da il
     # segnale di acquisto e' la EMA del MACD a 9 giorni
     ema_fast = close.ewm(ignore_na=False, min_periods=n_slow-1, adjust=True,
                          com=n_fast).mean()
@@ -119,10 +119,10 @@ def macd(close, n_fast=12, n_slow=26):
                          com=n_slow).mean()
 
     suffix = '{0}_{1}'.format(str(n_fast), str(n_slow))
-    macd = pd.Series(ema_fast - ema_slow, name='MACD_{0}'.format(suffix))
-    macd_sign = pd.Series(macd.ewm(ignore_na=False, com=9, adjust=True,
-                                   min_periods=8).mean(),
+    macd_df = pd.Series(ema_fast - ema_slow, name='MACD_{0}'.format(suffix))
+    macd_sign = pd.Series(macd_df.ewm(ignore_na=False, com=9, adjust=True,
+                                      min_periods=8).mean(),
                           name='MACDsign_{0}'.format(suffix))
-    macd_diff = pd.Series(macd - macd_sign, name='MACDdiff_{0}'.format(suffix))
-    df = macd.to_frame().join(macd_sign.to_frame()).join(macd_diff.to_frame())
+    macd_diff = pd.Series(macd_df - macd_sign, name='MACDdiff_{0}'.format(suffix))
+    df = macd_df.to_frame().join(macd_sign.to_frame()).join(macd_diff.to_frame())
     return df
